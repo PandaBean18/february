@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  media_type: MyString
+  cloudinary_url: MyString
+  name: MyString
+
+two:
+  media_type: MyString
+  cloudinary_url: MyString
+  name: MyString

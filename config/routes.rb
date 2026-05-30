@@ -10,10 +10,16 @@ Rails.application.routes.draw do
   Rails.application.routes.draw do
     namespace :api do
       namespace :v1 do
-        resources :users, only: [ :create ]
+        resources :users, only: [ :create, :show ]
 
         resources :posts, only: [ :index, :create, :update, :destroy ] do
           resources :reactions, only: [ :create ]
+        end
+
+        resources :stickers, only: [ :create, :index ] do
+          collection do
+            get :signature
+          end
         end
       end
     end

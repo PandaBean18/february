@@ -6,30 +6,27 @@ class Api::V1::PostsController < ApplicationController
         reaction_counts = Reaction.where(post_id: posts.map(&:id)).group(:post_id, :reaction_type).count
 
         render json: posts.map { |post|
-            post_reactions = reaction_counts.select { |key, _| key[0] == post.id }
-                                                    .transform_keys { |key| key[1] }
-
-            {
-                id: post.id,
-                category: post.category,
-                story: post.story,
-                created_at: post.created_at,
-                user: {
-                    id: post.user.id,
-                    username: post.user.username
-                },
-                reaction_counts: post_reactions
-            }
+            serialize_post(post)
         }, status: :ok
     end
 
     def create
-        post = Post.new(post_params)
+        ActiveRecord::Base.transaction do
+            @post = Post.new(post_params)
 
-        if post.save
-            render json: post, status: :created
-        else
-            render json: { errors: post.errors.full_messages }, status: :unprocessable_entity
+            if @post.save
+                sticker_tokens = @post.story.scan(/:([a-zA-Z0-9_-]+):/).flatten
+
+                if sticker_tokens.any?
+                    matched_stickers = Sticker.where(name: sticker_tokens)
+
+                    @post.stickers << matched_stickers
+                end
+
+                render json: serialize_post(@post), status: :created
+            else
+                render json: { errors: @post.errors.full_messages }, status: :unprocessable_entity
+            end
         end
     end
 
@@ -56,5 +53,26 @@ class Api::V1::PostsController < ApplicationController
 
     def post_params
         params.require(:post).permit(:user_id, :category, :kind, :story)
+    end
+
+    def serialize_post(post)
+        {
+            id: post.id,
+            category: post.category,
+            story: post.story,
+            created_at: post.created_at,
+            user: {
+                id: post.user.id,
+                username: post.user.username
+            },
+            stickers: post.stickers.map { |sticker|
+                {
+                    id: sticker.id,
+                    name: sticker.name,
+                    url: sticker.cloudinary_url
+                }
+            },
+            reaction_counts: post.reaction.group(:reaction_type).count
+        }
     end
 end

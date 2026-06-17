@@ -2,6 +2,7 @@ class Medium < ApplicationRecord
     self.table_name = "media"
 
     has_one :sticker, dependent: :destroy
+    has_one :user, foreign_key: :profile_picture_id, dependent: :nullify
 
     validates :media_type, presence: true
     validates :cloudinary_public_id, presence: true

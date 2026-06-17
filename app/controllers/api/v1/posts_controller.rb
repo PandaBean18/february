@@ -3,7 +3,6 @@ class Api::V1::PostsController < ApplicationController
 
     def index
         posts = Post.includes(:user).order(created_at: :desc).limit(50)
-        reaction_counts = Reaction.where(post_id: posts.map(&:id)).group(:post_id, :reaction_type).count
 
         render json: posts.map { |post|
             serialize_post(post)
@@ -63,7 +62,8 @@ class Api::V1::PostsController < ApplicationController
             created_at: post.created_at,
             user: {
                 id: post.user.id,
-                username: post.user.username
+                username: post.user.username,
+                profile_picture_url: post.user.profile_picture&.cloudinary_url
             },
             stickers: post.stickers.map { |sticker|
                 {

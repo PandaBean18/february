@@ -10,7 +10,13 @@ Rails.application.routes.draw do
   Rails.application.routes.draw do
     namespace :api do
       namespace :v1 do
-        resources :users, only: [ :create, :show ]
+        post "/auth/signup", to: "auth#signup"
+        post "/auth/login", to: "auth#login"
+        post "/auth/google", to: "auth#google"
+        post "/auth/refresh", to: "auth#refresh"
+        delete "/auth/logout", to: "auth#logout"
+
+        resources :users, only: [ :show, :update ]
 
         resources :posts, only: [ :index, :create, :update, :destroy ] do
           resources :reactions, only: [ :create ]
@@ -21,6 +27,12 @@ Rails.application.routes.draw do
             get :signature
           end
         end
+
+        resources :media, only: [] do
+          collection do
+            get :signature
+          end
+      end
       end
     end
   end

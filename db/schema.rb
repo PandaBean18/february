@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_30_190154) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_01_104230) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -54,6 +54,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_30_190154) do
     t.index ["user_id"], name: "index_reactions_on_user_id"
   end
 
+  create_table "refresh_tokens", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.string "token", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["token"], name: "index_refresh_tokens_on_token", unique: true
+    t.index ["user_id"], name: "index_refresh_tokens_on_user_id"
+  end
+
   create_table "stickers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.uuid "medium_id", null: false
@@ -68,8 +78,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_30_190154) do
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email"
+    t.string "password_digest"
+    t.uuid "profile_picture_id"
     t.datetime "updated_at", null: false
     t.string "username"
+    t.index ["profile_picture_id"], name: "index_users_on_profile_picture_id"
   end
 
   add_foreign_key "post_stickers", "posts"
@@ -77,6 +90,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_30_190154) do
   add_foreign_key "posts", "users"
   add_foreign_key "reactions", "posts"
   add_foreign_key "reactions", "users"
+  add_foreign_key "refresh_tokens", "users"
   add_foreign_key "stickers", "media"
   add_foreign_key "stickers", "users"
+  add_foreign_key "users", "media", column: "profile_picture_id"
 end

@@ -1,119 +1,196 @@
 # FlopIn API Documentation
-Base URL: http://localhost:3000/api/v1
-Format: All request and response payloads utilize application/json with native Postgres UUID formats across primary/foreign keys.
-1. Authentication Endpoints (Unprotected)
-1.1 Native Password Signup
-Endpoint: POST /auth/signup
-Description: Registers a new account using an email and password. Automatically creates a login session.
-Request Body
-JSON
+
+**Base URL:** `http://localhost:3000/api/v1`
+
+**Format:** All request and response payloads utilize `application/json` with native Postgres UUID formats across primary and foreign keys.
+
+---
+
+### Authentication Header Requirement
+
+All endpoints from Section 3 onwards require a valid, short-lived Access JWT to be sent inside the HTTP request headers:
+
+```http
+Authorization: Bearer <your_access_token>
+
+```
+
+If the token expires, the server returns a `401 Unauthorized` with `code: "TOKEN_EXPIRED"`, signaling the client application to invoke its background refresh token rotation routine.
+
+---
+
+## 1. Authentication Endpoints (Unprotected)
+
+### 1.1 Native Password Signup
+
+* **Endpoint:** `POST /auth/signup`
+* **Description:** Registers a new user account using an email, username, and password. Automatically instantiates an active login session.
+
+#### Request Body
+
+```json
 {
   "user": {
-    "email": "userb@gmail.com",
+    "email": "raghavb@gmail.com",
     "username": "rndbn",
     "password": "supersecurepassword123"
   }
 }
 
-Success Response (201 Created)
-JSON
+```
+
+#### Success Response (201 Created)
+
+```json
 {
   "access_token": "eyJhbGciOiJIUzI1NiJ9.ey...",
   "refresh_token": "a18ef7c4390b1c2d3e4f...",
   "user": {
     "id": "e3b0c442-98fc-11eb-a8b3-0242ac130003",
     "username": "rndbn",
-    "email": "user@gmail.com"
+    "email": "raghavb@gmail.com"
   }
 }
 
-1.2 Native Password Login
-Endpoint: POST /auth/login
-Description: Validates credentials against password_digest and returns a new token pair.
-Request Body
-JSON
+```
+
+---
+
+### 1.2 Native Password Login
+
+* **Endpoint:** `POST /auth/login`
+* **Description:** Validates credentials against the stored password digest and returns a new active token pair.
+
+#### Request Body
+
+```json
 {
-  "email": "user@gmail.com",
+  "email": "raghavb@gmail.com",
   "password": "supersecurepassword123"
 }
 
-Success Response (200 OK)
-JSON
+```
+
+#### Success Response (200 OK)
+
+```json
 {
   "access_token": "eyJhbGciOiJIUzI1NiJ9.ey...",
   "refresh_token": "b92fd8d3401a2b3c4d5e...",
   "user": {
     "id": "e3b0c442-98fc-11eb-a8b3-0242ac130003",
     "username": "rndbn",
-    "email": "user@gmail.com"
+    "email": "raghavb@gmail.com"
   }
 }
 
-1.3 Google OAuth Sign-In / Sign-Up
-Endpoint: POST /auth/google
-Description: Accepts Google Identity Provider tokens. Verifies signatures locally. If the email doesn't exist, it auto-registers a safe profile with a defensive high-entropy placeholder password hash.
-Request Body
-JSON
+```
+
+---
+
+### 1.3 Google OAuth Sign-In / Sign-Up
+
+* **Endpoint:** `POST /auth/google`
+* **Description:** Accepts an Identity Provider JWT from Google. Verifies signatures locally against configured client parameters. If the email does not exist in the system, it automatically registers a profile using a high-entropy placeholder password string.
+
+#### Request Body
+
+```json
 {
   "id_token": "AIzaSyD-google-identity-token-stream..."
 }
 
-Success Response (200 OK)
-JSON
+```
+
+#### Success Response (200 OK)
+
+```json
 {
   "access_token": "eyJhbGciOiJIUzI1NiJ9.ey...",
   "refresh_token": "c73fe8b1029c3d4e5f6a...",
   "user": {
     "id": "e3b0c442-98fc-11eb-a8b3-0242ac130003",
     "username": "rndbn",
-    "email": "user@gmail.com"
+    "email": "raghavb@gmail.com"
   }
 }
 
-1.4 Token Refresh Rotation
-Endpoint: POST /auth/refresh
-Description: Invoked silently when an access token expires. Deletes the passed refresh token to prevent replay attacks, generating a brand-new access token and rolling a new refresh token back to the client.
-Request Body
-JSON
+```
+
+---
+
+### 1.4 Token Refresh Rotation
+
+* **Endpoint:** `POST /auth/refresh`
+* **Description:** Invoked when an access token expires. Destroys the provided refresh token record instantly to prevent replay or reuse attacks, returning a newly rotated access token and a brand-new long-lived refresh token.
+
+#### Request Body
+
+```json
 {
   "refresh_token": "a18ef7c4390b1c2d3e4f..."
 }
 
-Success Response (200 OK)
-JSON
+```
+
+#### Success Response (200 OK)
+
+```json
 {
   "access_token": "eyJhbGciOiJIUzI1NiJ9.ey...NEW_TOKEN",
   "refresh_token": "f48ab29c018d3e4f5a6b...NEW_ROTATED_TOKEN",
   "user": {
     "id": "e3b0c442-98fc-11eb-a8b3-0242ac130003",
     "username": "rndbn",
-    "email": "user@gmail.com"
+    "email": "raghavb@gmail.com"
   }
 }
 
-2. Session Revocation (Protected)
-2.1 Logout
-Endpoint: DELETE /auth/logout
-Description: Purges the passed tracking reference from the refresh_tokens database table.
-Request Body
-JSON
+```
+
+---
+
+## 2. Session Revocation (Protected)
+
+### 2.1 Logout
+
+* **Endpoint:** `DELETE /auth/logout`
+* **Description:** Purges the tracking record matching the provided token parameter from the database back-end.
+
+#### Request Body
+
+```json
 {
   "refresh_token": "f48ab29c018d3e4f5a6b..."
 }
 
-Success Response (200 OK)
-JSON
+```
+
+#### Success Response (200 OK)
+
+```json
 {
   "message": "Logged out successfully"
 }
 
-3. Core Resource Feeds (Protected)
-3.1 Get Homepage Feed (All Posts)
-Endpoint: GET /posts
-Description: Returns workplace timeline entries with categorical mapping, user details, aggregate reaction totals, and nested arrays of sticker metadata parsed straight out of message stories.
-Request Body: None (Empty)
-Success Response (200 OK)
-JSON
+```
+
+---
+
+## 3. Core Resource Feeds (Protected)
+
+### 3.1 Get Homepage Feed (All Posts)
+
+* **Endpoint:** `GET /posts`
+* **Description:** Fetches contemporary failure entries with categorical tags, user associations, active group-by reaction tabulations, and an explicit array of sticker data footprints parsed from the text content.
+
+#### Request Body
+
+None (Empty)
+
+#### Success Response (200 OK)
+
+```json
 [
   {
     "id": "7b8e12ac-34bc-41de-89fa-112233445566",
@@ -145,11 +222,18 @@ JSON
   }
 ]
 
-3.2 Create a Failure Post
-Endpoint: POST /posts
-Description: Submits a failure snippet. Backend captures string via regex, matches active tokens, and creates relational rows inside your join table.
-Request Body
-JSON
+```
+
+---
+
+### 3.2 Create a Failure Post
+
+* **Endpoint:** `POST /posts`
+* **Description:** Commits a text story. The system scans the string content using regex formatting, matches active token labels, and builds the relational bounds inside the join table during persistence.
+
+#### Request Body
+
+```json
 {
   "post": {
     "user_id": "3a1f5f9e-dcf8-4c88-8e39-9c06e3719574",
@@ -158,8 +242,11 @@ JSON
   }
 }
 
-Success Response (201 Created)
-JSON
+```
+
+#### Success Response (201 Created)
+
+```json
 {
   "id": "8c9f23bd-45cd-52ef-90ab-223344556677",
   "user_id": "3a1f5f9e-dcf8-4c88-8e39-9c06e3719574",
@@ -176,10 +263,17 @@ JSON
   "updated_at": "2026-05-31T00:25:00.000Z"
 }
 
-3.3 Edit a Post
-Endpoint: PUT /posts/:id or PATCH /posts/:id
-Request Body
-JSON
+```
+
+---
+
+### 3.3 Edit a Post
+
+* **Endpoint:** `PUT /posts/:id` or `PATCH /posts/:id`
+
+#### Request Body
+
+```json
 {
   "post": {
     "story": "Dropped the main production database on day 3 of my internship. Wiped out master entirely.",
@@ -187,8 +281,11 @@ JSON
   }
 }
 
-Success Response (200 OK)
-JSON
+```
+
+#### Success Response (200 OK)
+
+```json
 {
   "id": "8c9f23bd-45cd-52ef-90ab-223344556677",
   "user_id": "3a1f5f9e-dcf8-4c88-8e39-9c06e3719574",
@@ -199,14 +296,25 @@ JSON
   "updated_at": "2026-05-31T00:28:10.000Z"
 }
 
-3.4 Delete a Post
-Endpoint: DELETE /posts/:id
-Success Response: 204 No Content (Empty body)
-3.5 Add/Update Reaction to a Post
-Endpoint: POST /posts/:post_id/reactions
-Description: Commits sentiment types (fail, relatable, dead, cheers). Overwrites previous selection for that specific user in place to prevent duplication.
-Request Body
-JSON
+```
+
+---
+
+### 3.4 Delete a Post
+
+* **Endpoint:** `DELETE /posts/:id`
+* **Success Response:** 204 No Content (Empty body)
+
+---
+
+### 3.5 Add/Update Reaction to a Post
+
+* **Endpoint:** `POST /posts/:post_id/reactions`
+* **Description:** Attaches or mutates a single sentiment indicator chosen from the valid types (fail, relatable, dead, cheers). Updates previous matches for the user context in place to prevent database record duplication.
+
+#### Request Body
+
+```json
 {
   "reaction": {
     "user_id": "3a1f5f9e-dcf8-4c88-8e39-9c06e3719574",
@@ -214,8 +322,11 @@ JSON
   }
 }
 
-Success Response (200 OK or 201 Created)
-JSON
+```
+
+#### Success Response (200 OK or 201 Created)
+
+```json
 {
   "id": "9d0e14af-67df-63f0-01ba-334455667788",
   "post_id": "c44c98e5-17aa-4b2b-a863-08b026d9214b",
@@ -225,13 +336,24 @@ JSON
   "updated_at": "2026-05-31T00:32:05.000Z"
 }
 
-4. User Profiles & Settings (Protected)
-4.1 Get User Profile Summary
-Endpoint: GET /users/:id
-Description: Generates aggregate profile stats and returns the global system sticker dictionary asset list to instantiate input completion states on the frontend.
-Request Body: None (Empty)
-Success Response (200 OK)
-JSON
+```
+
+---
+
+## 4. User Profiles & Settings (Protected)
+
+### 4.1 Get User Profile Summary
+
+* **Endpoint:** `GET /users/:id`
+* **Description:** Assembles targeted engagement data and maps out the global sticker registry lists to populate selection trays or auto-complete objects on the client user interface.
+
+#### Request Body
+
+None (Empty)
+
+#### Success Response (200 OK)
+
+```json
 {
   "id": "3a1f5f9e-dcf8-4c88-8e39-9c06e3719574",
   "username": "rndbn",
@@ -249,11 +371,18 @@ JSON
   ]
 }
 
-4.2 Update Profile Attributes / Avatar
-Endpoint: PATCH /users/:id
-Description: Patches core profile rows. Sending a cloudinary_public_id mounts a record inside the generic decoupled media index under the profile_picture enum, assigning it as the nullable foreign key avatar pointer.
-Request Body
-JSON
+```
+
+---
+
+### 4.2 Update Profile Attributes / Avatar
+
+* **Endpoint:** `PATCH /users/:id`
+* **Description:** Modifies profile properties. Providing a valid `cloudinary_public_id` value builds a row entry in the generic media index under the profile_picture classification type, linking it as the active entity pointer.
+
+#### Request Body
+
+```json
 {
   "user": {
     "username": "rndbn_updated",
@@ -261,8 +390,11 @@ JSON
   }
 }
 
-Success Response (200 OK)
-JSON
+```
+
+#### Success Response (200 OK)
+
+```json
 {
   "id": "3a1f5f9e-dcf8-4c88-8e39-9c06e3719574",
   "username": "rndbn_updated",
@@ -273,13 +405,24 @@ JSON
   }
 }
 
-5. Media & Asset Utilities (Protected)
-5.1 Get Cloudinary Direct Upload Signature
-Endpoint: GET /media/signature?type=sticker (or type=profile_picture)
-Description: Unified endpoint fetching short-lived credentials so Flutter clients can stream multipart asset binary data strings directly into target subfolders without utilizing server resources.
-Request Body: None (Empty)
-Success Response (200 OK)
-JSON
+```
+
+---
+
+## 5. Media & Asset Utilities (Protected)
+
+### 5.1 Get Cloudinary Direct Upload Signature
+
+* **Endpoint:** `GET /media/signature?type=sticker` (or `type=profile_picture`)
+* **Description:** A unified utility service providing short-lived cryptographic permissions payloads so client terminals can direct-stream binary data sets into the cloud storage subfolders without consuming platform resource paths.
+
+#### Request Body
+
+None (Empty)
+
+#### Success Response (200 OK)
+
+```json
 {
   "signature": "b94f61230132b8aa07e6f827a3c3f15f0132890a",
   "timestamp": 1780147789,
@@ -288,11 +431,18 @@ JSON
   "folder": "flopin_stickers"
 }
 
-5.2 Register Custom Sticker Assets
-Endpoint: POST /stickers
-Description: Takes an asset footprint uploaded to storage and attaches its cloudinary_public_id reference to a unique trigger text token wrapper inside your tables.
-Request Body
-JSON
+```
+
+---
+
+### 5.2 Register Custom Sticker Assets
+
+* **Endpoint:** `POST /stickers`
+* **Description:** Pairs a successfully transmitted cloud asset signature string with a specialized trigger token tracking definition mapped to the resource table index.
+
+#### Request Body
+
+```json
 {
   "sticker": {
     "user_id": "3a1f5f9e-dcf8-4c88-8e39-9c06e3719574",
@@ -301,8 +451,11 @@ JSON
   }
 }
 
-Success Response (201 Created)
-JSON
+```
+
+#### Success Response (201 Created)
+
+```json
 {
   "sticker_id": "5fa23bc0-21de-49b8-ba90-5566778899aa",
   "name": "sad_pepe_dev",
@@ -310,12 +463,22 @@ JSON
   "creator_id": "3a1f5f9e-dcf8-4c88-8e39-9c06e3719574"
 }
 
-5.3 List All Custom Stickers
-Endpoint: GET /stickers
-Description: Returns the global list of active platform stickers to populate the keyboard accessory tray layout.
-Request Body: None (Empty)
-Success Response (200 OK)
-JSON
+```
+
+---
+
+### 5.3 List All Custom Stickers
+
+* **Endpoint:** `GET /stickers`
+* **Description:** Retrieves the comprehensive matrix of custom asset pointers to establish image tray views.
+
+#### Request Body
+
+None (Empty)
+
+#### Success Response (200 OK)
+
+```json
 [
   {
     "id": "5fa23bc0-21de-49b8-ba90-5566778899aa",
@@ -324,19 +487,31 @@ JSON
   }
 ]
 
-6. Client Token Challenge Error Schema
-Status Boundary: 401 Unauthorized
-Description: Spitted back by your global filter if a token expiration event triggers, allowing easy interceptor detection in Flutter.
-JSON
+```
+
+---
+
+## 6. Client Token Challenge Error Schema
+
+* **Status Code:** 401 Unauthorized
+* **Description:** Returned by the application gatekeeper module if verification tokens fail verification or fall out of bounds, indicating rotation actions are necessary.
+
+```json
 {
   "error": "Token expired",
   "code": "TOKEN_EXPIRED"
 }
 
-7. Client Data Validation Error Format
-Status Boundary: 422 Unprocessable Entity
-Description: Enforces schema unique constraints.
-JSON
+```
+
+---
+
+## 7. Client Data Validation Error Format
+
+* **Status Code:** 422 Unprocessable Entity
+* **Description:** Returned when model validations, constraints, or unique indexing parameters fail.
+
+```json
 {
   "errors": [
     "Email has already been taken",
@@ -345,4 +520,4 @@ JSON
   ]
 }
 
-
+```

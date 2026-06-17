@@ -31,7 +31,7 @@ If the token expires, the server returns a `401 Unauthorized` with `code: "TOKEN
 ```json
 {
   "user": {
-    "email": "raghavb@gmail.com",
+    "email": "user@gmail.com",
     "username": "rndbn",
     "password": "supersecurepassword123"
   }
@@ -48,7 +48,7 @@ If the token expires, the server returns a `401 Unauthorized` with `code: "TOKEN
   "user": {
     "id": "e3b0c442-98fc-11eb-a8b3-0242ac130003",
     "username": "rndbn",
-    "email": "raghavb@gmail.com"
+    "email": "user@gmail.com"
   }
 }
 
@@ -65,7 +65,7 @@ If the token expires, the server returns a `401 Unauthorized` with `code: "TOKEN
 
 ```json
 {
-  "email": "raghavb@gmail.com",
+  "email": "user@gmail.com",
   "password": "supersecurepassword123"
 }
 
@@ -80,7 +80,7 @@ If the token expires, the server returns a `401 Unauthorized` with `code: "TOKEN
   "user": {
     "id": "e3b0c442-98fc-11eb-a8b3-0242ac130003",
     "username": "rndbn",
-    "email": "raghavb@gmail.com"
+    "email": "user@gmail.com"
   }
 }
 
@@ -111,7 +111,7 @@ If the token expires, the server returns a `401 Unauthorized` with `code: "TOKEN
   "user": {
     "id": "e3b0c442-98fc-11eb-a8b3-0242ac130003",
     "username": "rndbn",
-    "email": "raghavb@gmail.com"
+    "email": "user@gmail.com"
   }
 }
 
@@ -142,7 +142,7 @@ If the token expires, the server returns a `401 Unauthorized` with `code: "TOKEN
   "user": {
     "id": "e3b0c442-98fc-11eb-a8b3-0242ac130003",
     "username": "rndbn",
-    "email": "raghavb@gmail.com"
+    "email": "user@gmail.com"
   }
 }
 
@@ -205,12 +205,12 @@ None (Empty)
       {
         "id": "5fa23bc0-21de-49b8-ba90-5566778899aa",
         "name": "wave",
-        "url": "https://res.cloudinary.com/dopflwqoq/image/upload/v1780147789/flopin_stickers/wave.png"
+        "url": "https://res.cloudinary.com/abcd/image/upload/v1780147789/flopin_stickers/wave.png"
       },
       {
         "id": "c10b47ac-58cc-4372-a567-0e02b2c3d479",
         "name": "tutorial_hell",
-        "url": "https://res.cloudinary.com/dopflwqoq/image/upload/v1780147900/flopin_stickers/tutorial_hell.png"
+        "url": "https://res.cloudinary.com/abcd/image/upload/v1780147900/flopin_stickers/tutorial_hell.png"
       }
     ],
     "reaction_counts": {
@@ -256,7 +256,7 @@ None (Empty)
     {
       "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
       "name": "general_mess",
-      "url": "https://res.cloudinary.com/dopflwqoq/image/upload/v1780148100/flopin_stickers/general_mess.png"
+      "url": "https://res.cloudinary.com/abcd/image/upload/v1780148100/flopin_stickers/general_mess.png"
     }
   ],
   "created_at": "2026-05-31T00:25:00.000Z",
@@ -357,7 +357,7 @@ None (Empty)
 {
   "id": "3a1f5f9e-dcf8-4c88-8e39-9c06e3719574",
   "username": "rndbn",
-  "profile_picture_url": "https://res.cloudinary.com/dopflwqoq/image/upload/v1780149100/flopin_avatars/rndbn_avatar_xyz789.png",
+  "profile_picture_url": "https://res.cloudinary.com/abcd/image/upload/v1780149100/flopin_avatars/rndbn_avatar_xyz789.png",
   "stats": {
     "posts_count": 14,
     "reactions_received_count": 523
@@ -366,7 +366,7 @@ None (Empty)
     {
       "id": "5fa23bc0-21de-49b8-ba90-5566778899aa",
       "name": "sad_pepe_dev",
-      "url": "https://res.cloudinary.com/dopflwqoq/image/upload/v1780147789/flopin_stickers/sad_pepe_dev.png"
+      "url": "https://res.cloudinary.com/abcd/image/upload/v1780147789/flopin_stickers/sad_pepe_dev.png"
     }
   ]
 }
@@ -398,7 +398,7 @@ None (Empty)
 {
   "id": "3a1f5f9e-dcf8-4c88-8e39-9c06e3719574",
   "username": "rndbn_updated",
-  "profile_picture_url": "https://res.cloudinary.com/dopflwqoq/image/upload/v1780149100/flopin_avatars/rndbn_avatar_xyz789.png",
+  "profile_picture_url": "https://res.cloudinary.com/abcd/image/upload/v1780149100/flopin_avatars/rndbn_avatar_xyz789.png",
   "stats": {
     "posts_count": 14,
     "reactions_received_count": 523
@@ -459,7 +459,7 @@ None (Empty)
 {
   "sticker_id": "5fa23bc0-21de-49b8-ba90-5566778899aa",
   "name": "sad_pepe_dev",
-  "url": "https://res.cloudinary.com/dopflwqoq/image/upload/v1780147789/flopin_stickers/sad_pepe_dev.png",
+  "url": "https://res.cloudinary.com/abcd/image/upload/v1780147789/flopin_stickers/sad_pepe_dev.png",
   "creator_id": "3a1f5f9e-dcf8-4c88-8e39-9c06e3719574"
 }
 
@@ -483,7 +483,7 @@ None (Empty)
   {
     "id": "5fa23bc0-21de-49b8-ba90-5566778899aa",
     "name": "sad_pepe_dev",
-    "url": "https://res.cloudinary.com/dopflwqoq/image/upload/v1780147789/flopin_stickers/sad_pepe_dev.png"
+    "url": "https://res.cloudinary.com/abcd/image/upload/v1780147789/flopin_stickers/sad_pepe_dev.png"
   }
 ]
 
